@@ -1,2 +1,3 @@
-def main() -> None:
-    print("Hello from neural-networks-list-1!")
+from .main import main
+
+__all__ = ["main"]

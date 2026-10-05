@@ -7,7 +7,12 @@ authors = [
     { name = "Mateusz Kowalski", email = "kowalski.mateusz.1lo1@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "ucimlrepo~=0.0.7",
+    "numpy~=2.5.3",
+    "pandas~=3.0.6",
+    "scikit-learn~=1.9.1",
+]
 
 [project.scripts]
 main = "neural_networks_list_1:main"
