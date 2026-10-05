@@ -29,3 +29,16 @@ def main() -> None:
         mean = round(X[feature].mean(), ROUNDING)
         std = round(X[feature].std(), ROUNDING)
         print(f"Feature {feature} has a mean of {mean} and a standard deviation of {std}")
+
+    y = heart_disease.data.targets
+    print(y.value_counts())
+
+    y_binary = (y > 0).astype(int)
+
+    # Sprawdzenie balansu klas
+    print("Rozkład klas po transformacji binarnej:")
+    print(y_binary.value_counts())
+
+    # Wyświetlenie jako procenty
+    print("\nRozkład procentowy:")
+    print(y_binary.value_counts(normalize=True) * 100)
