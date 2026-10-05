@@ -4,10 +4,11 @@
 uv sync --extra dev
 ```
 
-### Configure pre-commit
+### Configure and run pre-commit
 
 ```bash
-prek install
+uv run prek install
+uv run prek run --all-files
 ```
 
 ### Install the dataset
