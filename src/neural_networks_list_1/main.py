@@ -36,14 +36,14 @@ def main() -> None:
         std = round(X[feature].std(), ROUNDING)
         print(f"Feature '{feature}' has a mean of {mean} and a standard deviation of {std}")
 
-    y = heart_disease.data.targets
+    y_original = heart_disease.data.targets.iloc[:, 0]
     print("\nClass distribution:")
-    print(y.value_counts())
+    print(y_original.value_counts())
 
     print("\nDistribution percentages:")
-    print(y.value_counts(normalize=True) * 100)
+    print(y_original.value_counts(normalize=True) * 100)
 
-    y_binary = (y > 0).astype(int)
+    y_binary = (y_original > 0).astype(int)
     print("\nClass distribution after binary normalization:")
     print(y_binary.value_counts())
 
@@ -70,7 +70,7 @@ def main() -> None:
     print(X.isna().sum())
 
     print("\nMissing values in target:")
-    print(y.isna().sum())
+    print(y_original.isna().sum())
 
     print("\nCategorical feature distributions:")
     for feature in categorical_features:
@@ -101,15 +101,12 @@ def main() -> None:
         ]
     )
 
-    final_y = heart_disease.data.targets.iloc[:, 0]
-    final_y = (final_y > 0).astype(int)
-
     X_train, X_test, y_train, y_test = train_test_split(
         X,
-        final_y,
+        y_binary,
         test_size=0.2,
         random_state=42,
-        stratify=final_y,
+        stratify=y_binary,
     )
 
     model = Pipeline(
