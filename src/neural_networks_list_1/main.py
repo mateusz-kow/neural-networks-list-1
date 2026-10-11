@@ -1,6 +1,11 @@
-from ucimlrepo import fetch_ucirepo
-import matplotlib.pyplot as plt
 from pathlib import Path
+
+import matplotlib.pyplot as plt
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from ucimlrepo import fetch_ucirepo
 
 ROUNDING = 2
 
@@ -12,13 +17,13 @@ def main() -> None:
     vars_df = heart_disease.variables
 
     features = vars_df[vars_df["role"] == "Feature"]
-    numeral_features = features[features["type"] == "Integer"]["name"].tolist()
+    numeric_features = features[features["type"] == "Integer"]["name"].tolist()
     categorical_features = features[features["type"] == "Categorical"]["name"].tolist()
 
-    print(f"Numeral features: {numeral_features}")
+    print(f"Numeral features: {numeric_features}")
     print(f"Categorical features: {categorical_features}")
 
-    for feature in numeral_features:
+    for feature in numeric_features:
         mean = round(X[feature].mean(), ROUNDING)
         std = round(X[feature].std(), ROUNDING)
         print(f"Feature '{feature}' has a mean of {mean} and a standard deviation of {std}")
@@ -30,7 +35,6 @@ def main() -> None:
     print("\nDistribution percentages:")
     print(y.value_counts(normalize=True) * 100)
 
-
     y_binary = (y > 0).astype(int)
     print("\nClass distribution after inary normalization:")
     print(y_binary.value_counts())
@@ -38,11 +42,10 @@ def main() -> None:
     print("\nDistribution percentages:")
     print(y_binary.value_counts(normalize=True) * 100)
 
-
     plots_dir = Path("plots")
     plots_dir.mkdir(exist_ok=True)
 
-    for feature in numeral_features:
+    for feature in numeric_features:
         plt.figure(figsize=(8, 5))
 
         X[feature].dropna().hist(bins=20)
@@ -68,3 +71,24 @@ def main() -> None:
 
         print("\nPercentages:")
         print((X[feature].value_counts(normalize=True, dropna=False) * 100).round(ROUNDING))
+
+    numeric_pipeline = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
+        ]
+    )
+
+    categorical_pipeline = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            ("encoder", OneHotEncoder(handle_unknown="ignore")),
+        ]
+    )
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("numeric", numeric_pipeline, numeric_features),
+            ("categorical", categorical_pipeline, categorical_features),
+        ]
+    )
