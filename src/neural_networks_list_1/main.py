@@ -3,6 +3,14 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+)
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from ucimlrepo import fetch_ucirepo
@@ -36,7 +44,7 @@ def main() -> None:
     print(y.value_counts(normalize=True) * 100)
 
     y_binary = (y > 0).astype(int)
-    print("\nClass distribution after inary normalization:")
+    print("\nClass distribution after binary normalization:")
     print(y_binary.value_counts())
 
     print("\nDistribution percentages:")
@@ -92,3 +100,35 @@ def main() -> None:
             ("categorical", categorical_pipeline, categorical_features),
         ]
     )
+
+    final_y = heart_disease.data.targets.iloc[:, 0]
+    final_y = (final_y > 0).astype(int)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        final_y,
+        test_size=0.2,
+        random_state=42,
+        stratify=final_y,
+    )
+
+    model = Pipeline(
+        steps=[
+            ("preprocessor", preprocessor),
+            ("classifier", LogisticRegression(max_iter=1000)),
+        ]
+    )
+
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+
+    print("\nBaseline results:")
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.3f}")
+    print(f"F1-score: {f1_score(y_test, y_pred):.3f}")
+
+    print("\nClassification report:")
+    print(classification_report(y_test, y_pred))
+
+    print("\nConfusion matrix:")
+    print(confusion_matrix(y_test, y_pred))
